@@ -1,0 +1,179 @@
+<html>
+<head>
+<script src="http://10.0.0.7:3001/jquery.js"></script>
+	
+</script>
+<style>
+body{
+	font-family: Hevéltica;
+	margin: 0;
+	min-width: 100%;
+	min-height: 100%;
+	font-size: 360%;
+	text-align: center;
+	border: 0;
+	position: relative;
+}
+
+h1{
+	color: white;
+	margin: 0;
+	background-color: DodgerBlue;
+}
+input{
+	margin:0;
+	font-size: 80%;
+	height: 5%;
+	text-align: center;
+	border-color: violet;
+}
+.pesq{
+	position: relative;
+	margin-top: 7%;
+	margin-left: 15%;
+	margin-down: 1%;
+	font-size: 80%;
+	width: 70%;
+	
+}
+button{
+	margin:0;
+	border:0;
+	font-size: 65%;
+	height: 7%;
+	width: 30%;
+	color: white;
+	border-color: cyan;
+	background-color: deepSkyBlue;
+}
+img{
+	margin:0;
+	width: 50%;
+	height: 20%;
+}
+h5{
+	margin: 1%;
+}
+pen{
+	font-size: 10%;
+	width: 50%;
+	margin:0;
+}
+i{
+	font-size: 70%;
+}
+.res{
+	margin: 1;
+	text-align: center;
+	font-size: 50%;
+	}
+.sv{
+	font-size: 30%;
+	margin: 0;
+}
+</style>
+</head>
+<body>
+<h1>Gugolplex</h1>	
+<br>
+<p class="sv" id="sv"></p>
+<div class="pen">
+<h5>Pensamento do dia:</h5>
+<img src="https://i.pinimg.com/originals/66/55/5e/66555e92e54b6faa4cfdcd2dbf4e9480.jpg"
+>
+<br>
+<i>"Ame Mais".</i>
+</div>
+<div class="pesq">
+<input id="pesq" placeholder="Pesquise">
+<br>
+<br>
+<span>
+<button onclick="pesq()">Pesquisar imagens</button>
+
+<button onclick="pes()">Pesquisar links</button>
+</span>
+</div>
+<br></br>
+<div class="res" id="res">
+..
+</div>
+<script>
+
+load = async () => {
+	
+	let p = $("#pesq").val()
+	var req = "http://10.0.0.7:3001/pesq/"+p
+    
+	let n = await fetch(req)
+	.then(res => res.json())
+	.then((r) => {
+		//console.log(r.results)
+		//$("#res").append('p'+r.results[0])
+		t = 0
+		ii = " http://10.0.0.7:3001/loading.gif"
+		for(i of r.results){
+			t++
+			let p = `<a id="al${t}" href= ${ii} ><img id="im${t}" src= ${ii} ></a>`
+	       $("#res").append(p)
+	   }
+	   return r.results
+	})
+	return n
+}
+
+async function pesq(){
+	$("#res").html("")
+	let r = await load().then(r => {
+		console.log(r)
+		t = 0
+		return r
+	})
+	for(i of r){
+		console.log(i)
+		t++
+		$(`#al${t}`).attr("href", i)
+		$(`#im${t}`).attr("src", i)
+	}
+//	$("#pesq").val("")	
+}
+
+
+function pes(){
+	document.getElementById("res")
+	.innerHTML = ""
+	p = document.getElementById("pesq")
+	.value
+	fetch("http://localhost:3001/pes/"+p)
+	.then(res => res.json())
+	.then((r) => {
+		
+		console.log(r.results)
+		//$("#res").append('p'+r.results[0])
+		for(i of r.results){
+			p = ` <a href= ${i.link} ><b>${i.title}</b></a></br>
+			<p><small></small></p><p> ${i.snippet} </p><br><hr></br>`
+			$("#res").append(p)
+		}
+	})
+}
+</script>
+<script src="http://localhost:3001/socket.io/socket.io.js">
+</script>
+<script>
+var socket = io()
+b = 45
+console.log("foi porra")
+socket.on("connect", () => {
+	console.log("conectado no servidor")
+	console.error(b)
+	$("#sv").text("vc estah conectado no servidor")
+})
+
+socket.on("disconnect", () => {
+	$("#sv").text("vc foi desconectado")
+})
+
+</script>
+</body>
+</html>
